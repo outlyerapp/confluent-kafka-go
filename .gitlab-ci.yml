@@ -1,0 +1,50 @@
+---
+
+before_script:
+    - export BUILD_NUMBER=${CI_COMMIT_REF_NAME}
+    - if [ ${CI_COMMIT_REF_NAME} == 'master' ] ; then export BUILD_NUMBER=${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA:0:8}; fi
+    - echo ${BUILD_NUMBER}
+
+
+stages:
+  - build
+  - package
+  - repo
+
+build:
+  stage: build
+  tags:
+    - docker
+  image: golang:1.7
+  script:
+  - wget -qO - http://packages.confluent.io/deb/3.3/archive.key | apt-key add -
+  - echo "deb [arch=amd64] http://packages.confluent.io/deb/3.3 stable main" > /etc/apt/sources.list.d/confluent.list
+  - apt-get update
+  - apt-get install -y librdkafka1 librdkafka-dev
+  - make test
+  - make # make the golangs
+  artifacts:
+    paths:
+      - bin/
+
+package:
+  stage: package
+  tags:
+    - docker
+  image: dockerfile/fpm
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} docker.dataloop.io
+    - docker build -t docker.dataloop.io/outlyerapp/flapper:${BUILD_NUMBER} .
+    - docker push docker.dataloop.io/outlyerapp/flapper:${BUILD_NUMBER}
+  dependencies:
+   - build
+
+upload_deb:
+  stage: repo
+  tags:
+    - bash
+  only:
+    - master
+  script:
+    - echo "Deploying ${BUILD_NUMBER} with aptly"
+  when: manual
