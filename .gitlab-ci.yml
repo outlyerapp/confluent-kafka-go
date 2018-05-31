@@ -19,13 +19,14 @@ build:
   - wget -qO - https://packages.confluent.io/deb/4.1/archive.key | apt-key add -
   - echo "deb [arch=amd64] http://packages.confluent.io/deb/4.1 stable main" > /etc/apt/sources.list.d/confluent.list
   - apt-get update
-  - apt-get install -y confluent-platform-oss-2.11 librdkafka1 librdkafka-de
+  - apt-get install -y confluent-platform-oss-2.11 librdkafka1 librdkafka-dev
   - make -f mk/Makefile  "go build"
   - ls -alh
+  - apt-get install -y tree
   - tree
   artifacts:
     paths:
-      - bin/
+      - kafka/
 
 package:
   stage: package
@@ -33,7 +34,8 @@ package:
     - docker
   image: dockerfile/fpm
   script:
-  - echo "do packaginf eith fpm"
+  - echo "do packaging with fpm"
+  - tree
   dependencies:
    - build
 
