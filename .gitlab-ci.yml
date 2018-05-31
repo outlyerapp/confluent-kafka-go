@@ -21,8 +21,9 @@ build:
   - echo "deb [arch=amd64] http://packages.confluent.io/deb/3.3 stable main" > /etc/apt/sources.list.d/confluent.list
   - apt-get update
   - apt-get install -y librdkafka1 librdkafka-dev
-  - make test
-  - make # make the golangs
+  - make -f mk/Makefile  "go build"
+  - ls -alh
+  - tree
   artifacts:
     paths:
       - bin/
