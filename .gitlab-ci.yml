@@ -34,6 +34,7 @@ package:
     - docker
   image: dockerfile/fpm
   script:
+  - echo "do packaginf eith fpm"
   dependencies:
    - build
 
