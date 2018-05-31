@@ -14,7 +14,7 @@ build:
   stage: build
   tags:
     - docker
-  image: golang
+  image: golang:1.7
   script:
   - wget -qO - https://packages.confluent.io/deb/4.1/archive.key | apt-key add -
   - echo "deb [arch=amd64] http://packages.confluent.io/deb/4.1 stable main" > /etc/apt/sources.list.d/confluent.list
